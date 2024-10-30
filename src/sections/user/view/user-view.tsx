@@ -1,6 +1,5 @@
 // UserView.tsx
 import type { SelectChangeEvent } from '@mui/material';
-import type { AgenciaProps } from 'src/sections/agencys/agency-table-row';
 
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
@@ -37,7 +36,7 @@ import { EditStatusView } from './status-edit-dialog';
 import { applyFilter, getComparator } from '../utils';
 import { UserTableToolbar } from '../user-table-toolbar';
 
-import type { UserProps } from '../user-table-row';
+import type { RoleProps, UserProps } from '../user-table-row';
 
 export function UserView() {
   const [filterName, setFilterName] = useState<string>('');
@@ -45,7 +44,7 @@ export function UserView() {
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [selectedCargo, setSelectedCargo] = useState<string>('');
   const [users, setUsers] = useState<UserProps[]>([]);
-  const [agencies, setAgencies] = useState<AgenciaProps[]>([]);
+  const [role, setRole] = useState<RoleProps[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -141,7 +140,7 @@ export function UserView() {
     },
   };
 
-  const { AddUserDialog, handleOpenAddUserModal } = useCreateUserDialog(handleSaveUser, agencies);
+  const { AddUserDialog, handleOpenAddUserModal } = useCreateUserDialog(handleSaveUser, role);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -150,10 +149,10 @@ export function UserView() {
     (async () => {
       try {
         const usersResponse = await axios.get(`${import.meta.env.VITE_APP_API_URL}api/users`, { signal: controller.signal });
-        const agenciesResponse = await axios.get(`${import.meta.env.VITE_APP_API_URL}api/agencys`, { signal: controller.signal });
+        const roleResponse = await axios.get(`${import.meta.env.VITE_APP_API_URL}api/roles`, { signal: controller.signal });
 
         setUsers(usersResponse.data);
-        setAgencies(agenciesResponse.data);
+        setRole(roleResponse.data);
       } catch (error) {
         if (error.name !== 'AbortError') {
           console.error('Error fetching users or agencies:', error);
@@ -279,13 +278,11 @@ export function UserView() {
                 onSelectAllRows={() => { }}
                 headLabel={[
                   { id: 'item', label: 'Id', align: 'center' },
-                  { id: 'nombres', label: 'Fundacion' },
-                  { id: 'apellidos', label: 'Apellidos' },
-                  { id: 'cc', label: 'CC' },
-                  { id: 'cargo', label: 'Cargo' },
-                  { id: 'correo', label: 'Correo' },
-                  { id: 'agencia', label: 'Agencia' },
-                  { id: 'rol', label: 'Rol' },
+                  { id: 'firstName', label: 'Nombres' },
+                  { id: 'lastName', label: 'Apellidos' },
+                  { id: 'phoneNumber', label: 'Celular' },
+                  { id: 'email', label: 'Correo' },
+                  { id: 'roleId', label: 'Rol' },
                   { id: 'status', label: 'Estado' },
                   { id: '' },
                 ]}
@@ -334,7 +331,7 @@ export function UserView() {
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Estás seguro de que deseas eliminar a {userToDelete?.nombres} {userToDelete?.apellidos}? Esta acción no se puede deshacer.
+            ¿Estás seguro de que deseas eliminar a {userToDelete?.firstName} {userToDelete?.lastName}? Esta acción no se puede deshacer.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -356,7 +353,7 @@ export function UserView() {
               user={selectedUser}
               onClose={() => setEditMode(false)}
               onSave={handleSaveUser}
-              agencies={agencies}
+              role={role}
             />
           )}
         </DialogContent>

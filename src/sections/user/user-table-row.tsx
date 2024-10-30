@@ -13,19 +13,20 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import type { AgenciaProps } from '../agencys/agency-table-row';
-
+export type RoleProps = {
+  _id: string;
+  name: string;
+  status?: string;
+};
 
 export type UserProps = {
   _id: string;
   item: number;
-  nombres: string;
-  apellidos: string;
-  cc: string;
-  cargo: string;
-  correo: string;
-  agencia: AgenciaProps;
-  rol?: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  roleid: RoleProps;
   verificacion?: boolean;
   status?: string;
   visible: number;
@@ -90,28 +91,24 @@ export function UserTableRow({ row, selected, onSelectRow, onEditUser, onEditSta
         <TableCell align="center">{row.item}</TableCell> {/* Celda para el número de la fila */}
         <TableCell component="th" scope="row">
           <Box gap={2} display="flex" alignItems="center">
-            <Avatar alt={`${row.nombres} ${row.apellidos}`} sx={{ bgcolor: 'primary.main' }}>
-              {row.nombres.charAt(0)}{row.apellidos.charAt(0)}  {/* Iniciales del usuario */}
+            <Avatar alt={`${row.firstName} ${row.lastName}`} sx={{ bgcolor: 'primary.main' }}>
+              {row.firstName.charAt(0)}{row.lastName.charAt(0)}  {/* Iniciales del usuario */}
             </Avatar>
-            {row.nombres}
+            {row.firstName}
           </Box>
         </TableCell>
 
         <TableCell component="th" scope="row">
           <Box display="flex" alignItems="center">
-            {row.apellidos}
+            {row.lastName}
           </Box>
         </TableCell>
 
-        <TableCell>{row.cc}</TableCell>
-
-        <TableCell>{row.cargo}</TableCell>
+        <TableCell>{row.phoneNumber}</TableCell>
         
-        <TableCell>{row.correo}</TableCell>
+        <TableCell>{row.email}</TableCell>
 
-        <TableCell>{row.agencia?.cod} - {row.agencia?.nombre}</TableCell>
-
-        <TableCell>{row.rol}</TableCell>
+        <TableCell>{row.roleid?.name}</TableCell>
 
         <TableCell>
           <Label color={(row.status === 'inactivo' && 'error') || 'success'}>{row.status}</Label>

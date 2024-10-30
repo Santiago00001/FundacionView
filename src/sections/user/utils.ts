@@ -97,18 +97,16 @@ export function applyFilter({
         case "nombres": {
           const searchTerm = filterName.toLowerCase();
           return (
-            product.nombres.toLowerCase().includes(searchTerm) ||
-            product.apellidos.toLowerCase().includes(searchTerm)
+            product.firstName.toLowerCase().includes(searchTerm) ||
+            product.lastName.toLowerCase().includes(searchTerm)
           );
         }
         case "apellidos":
-          return product.apellidos.toLowerCase().includes(filterName.toLowerCase());
+          return product.lastName.toLowerCase().includes(filterName.toLowerCase());
         case "item":
-          return product.item.toString() === filterName; // Comparación exacta
-        case "cc":
-          return product.cc.toString().includes(filterName.toLowerCase());
+          return product.item.toString() === filterName;
         case "agencia": {
-          const agenciaStr = `${product.agencia.cod} - ${product.agencia.nombre}`.toLowerCase();
+          const agenciaStr = `${product.roleid.name}`.toLowerCase();
           return agenciaStr.includes(filterName.toLowerCase());
         }
         default:
@@ -118,15 +116,11 @@ export function applyFilter({
   }
 
   if (selectedRol) {
-    inputData = inputData.filter((user) => user.rol === selectedRol);
+    inputData = inputData.filter((user) => user.roleid._id === selectedRol);
   }
 
   if (selectedStatus) {
     inputData = inputData.filter((user) => user.status === selectedStatus);
-  }
-
-  if (selectedCargo) {
-    inputData = inputData.filter((user) => user.cargo === selectedCargo);
   }
 
   return inputData;

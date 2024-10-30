@@ -1,8 +1,8 @@
 import ReactDOM from 'react-dom/client';
 import { Suspense, StrictMode } from 'react';
+import { SnackbarProvider } from 'notistack';
 import { BrowserRouter } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
-import { SnackbarProvider } from 'notistack'; // Importar SnackbarProvider
+import { HelmetProvider } from 'react-helmet-async'; // Importar SnackbarProvider
 
 import App from './app';
 

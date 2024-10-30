@@ -15,16 +15,16 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 
-import type { UserProps } from '../user-table-row';
+import type { RoleProps, UserProps } from '../user-table-row';
 
 interface EditUserViewProps {
   user: UserProps;
   onClose: () => void;
   onSave: (user: UserProps) => Promise<void>;
-  agencies: AgenciaProps[]; // Lista de agencias disponibles
+  role: RoleProps[]; // Lista de agencias disponibles
 }
 
-export function EditUserView({ user, onClose, onSave, agencies }: EditUserViewProps) {
+export function EditUserView({ user, onClose, onSave, role }: EditUserViewProps) {
   const [formData, setFormData] = useState<UserProps>(user);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -33,7 +33,7 @@ export function EditUserView({ user, onClose, onSave, agencies }: EditUserViewPr
       // Separar el nombre del correo del dominio al cargar el usuario
       setFormData({
         ...user,
-        correo: user.correo.split('@')[0], // Obtener solo la parte antes de @
+        email: user.email.split('@')[0], // Obtener solo la parte antes de @
       });
     }
   }, [user]);
@@ -46,7 +46,7 @@ export function EditUserView({ user, onClose, onSave, agencies }: EditUserViewPr
       // Creamos una copia de formDataWithoutStatus y concatenamos el dominio en el campo "correo"
       const updatedUserData = {
         ...formDataWithoutStatus,
-        correo: `${formDataWithoutStatus.correo}@coopserp.com`, // Concatenar el dominio
+        correo: `${formDataWithoutStatus.email}@coopserp.com`, // Concatenar el dominio
       };
 
       // Guardamos los cambios (sin "status" y con el correo actualizado)
@@ -62,7 +62,7 @@ export function EditUserView({ user, onClose, onSave, agencies }: EditUserViewPr
 
   const handleAgencyChange = (event: SelectChangeEvent<string>) => {
     const selectedAgencyId = event.target.value;
-    const selectedAgency = agencies.find(agency => agency._id === selectedAgencyId);
+    const selectedAgency = role.find(agency => agency._id === selectedAgencyId);
   
     if (selectedAgency) {
       setFormData(prevFormData => ({
@@ -91,56 +91,33 @@ export function EditUserView({ user, onClose, onSave, agencies }: EditUserViewPr
         />
         <TextField
           label="Nombres"
-          value={formData.nombres}
-          onChange={(e) => setFormData({ ...formData, nombres: e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase()) })}
+          value={formData.firstName}
+          onChange={(e) => setFormData({ ...formData, firstName: e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase()) })}
           fullWidth
           margin="normal"
         />
         <TextField
           label="Apellidos"
-          value={formData.apellidos}
-          onChange={(e) => setFormData({ ...formData, apellidos: e.target.value.toUpperCase()  })}
+          value={formData.lastName}
+          onChange={(e) => setFormData({ ...formData, lastName: e.target.value.toUpperCase()  })}
           fullWidth
           margin="normal"
         />
         <TextField
           label="CC"
-          value={formData.cc}
+          value={formData.phoneNumber}
           onChange={(e) => {
             const value = e.target.value.replace(/\D/g, ""); // Elimina cualquier caracter que no sea dígito
-            setFormData({ ...formData, cc: value });
+            setFormData({ ...formData, phoneNumber: value });
           }}
           fullWidth
           margin="normal"
           required
         />
-        <FormControl fullWidth margin="normal" variant="outlined" required>
-          <InputLabel>Cargo</InputLabel>
-          <Select
-            label="Cargo"
-            value={formData.cargo}
-            onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-          >
-            {[
-              "DIRECTOR DE AGENCIA",
-              "JEFE ÁREA REPORTES",
-              "JEFE DEPARTAMENTO",
-              "DIRECTOR GENERAL",
-              "OFICIAL DE CUMPLIMIENTO",
-              "COORDINADOR DE AGENCIAS",
-            ]
-              .sort() // Ordena alfabéticamente
-              .map((cargo) => (
-                <MenuItem key={cargo} value={cargo}>
-                  {cargo}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
         <TextField
           label="Correo (sin @coopserp.com)"
-          value={formData.correo}
-          onChange={(e) => setFormData({ ...formData, correo: e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase()) })}
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase()) })}
           fullWidth
           margin="normal"
           InputProps={{
@@ -150,46 +127,24 @@ export function EditUserView({ user, onClose, onSave, agencies }: EditUserViewPr
           }}
         />
 
-        {/* Campo para seleccionar la Agencia */}
+        {/* Campo para seleccionar la Agencia 
         <FormControl fullWidth margin="normal" required>
           <InputLabel>Agencia</InputLabel>
           <Select
             label="Agencia"
-            value={formData.agencia._id}
+            value={formData.roleId._id}
             onChange={handleAgencyChange}
           >
             {agencies
               .sort((a, b) => a.cod - b.cod) // Ordena por código numéricamente
-              .map(agency => (
-                <MenuItem key={agency._id} value={agency._id}>
-                  {agency.cod} {agency.nombre}
+              .map(role => (
+                <MenuItem key={role._id} value={role._id}>
+                  {role.name}
                 </MenuItem>
               ))}
           </Select>
         </FormControl>
-
-        <FormControl fullWidth margin="normal" variant="outlined" required>
-          <InputLabel>Rol</InputLabel>
-          <Select
-            label="Rol"
-            value={formData.rol}
-            onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
-          >
-            {[
-              "Admin",
-              "Agencia",
-              "Coordinacion",
-              "Jefatura",
-              "Almacenista",
-            ]
-              .sort() // Ordena alfabéticamente
-              .map((rol) => (
-                <MenuItem key={rol} value={rol}>
-                  {rol}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
+        */}
         
         <Button variant="contained" sx={{ mr: 2 }} onClick={handleSave} startIcon={<Iconify icon="mingcute:save-line" />}>
           Guardar

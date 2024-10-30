@@ -1,5 +1,4 @@
-import type { UserProps } from 'src/sections/user/user-table-row';
-import type { AgenciaProps } from 'src/sections/agencys/agency-table-row';
+import type { RoleProps, UserProps } from 'src/sections/user/user-table-row';
 
 import { useState } from 'react';
 
@@ -7,7 +6,7 @@ import { Dialog, DialogContent } from '@mui/material';
 
 import { CreateUserView } from 'src/sections/user/view/user-create-view';
 
-export function useCreateUserDialog(onSave: (user: UserProps) => Promise<void>, agencies: AgenciaProps[]) {
+export function useCreateUserDialog(onSave: (user: UserProps) => Promise<void>, role: RoleProps[]) {
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
@@ -22,7 +21,7 @@ export function useCreateUserDialog(onSave: (user: UserProps) => Promise<void>, 
             await onSave(user);
             handleClose();
           }}
-          agencies={agencies} // Pasar agencias aquí
+          role={role} // Pasar agencias aquí
         />
       </DialogContent>
     </Dialog>

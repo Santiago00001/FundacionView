@@ -88,7 +88,7 @@ export function applyFilter({
       let directorName = '';
       const director = users.find(user => user._id === provider.director);
       if (director) {
-        directorName = `${director.nombres} ${director.apellidos}`.toLowerCase();
+        directorName = `${director.firstName} ${director.lastName}`.toLowerCase();
       }
 
       switch (searchField) {

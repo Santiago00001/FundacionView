@@ -76,8 +76,8 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         }}
         {...other}
       >
-        <Avatar alt={`${user?.nombres} ${user?.apellidos}`} sx={{ bgcolor: 'primary.main' }}>
-          {user ? `${user.nombres.charAt(0)}${user.apellidos.charAt(0)}` : '?'}  {/* Iniciales del usuario */}
+        <Avatar alt={`${user?.firstName} ${user?.lastName}`} sx={{ bgcolor: 'primary.main' }}>
+          {user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '?'}  {/* Iniciales del usuario */}
         </Avatar>
       </IconButton>
 
@@ -95,11 +95,11 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
       >
         <Box sx={{ p: 2, pb: 1.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {user ? `${user.nombres} ${user.apellidos}` : 'Usuario desconocido'}
+            {user ? `${user.firstName} ${user.lastName}` : 'Usuario desconocido'}
           </Typography>
 
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {user?.correo || 'Sin correo'}
+            {user?.email || 'Sin correo'}
           </Typography>
         </Box>
 

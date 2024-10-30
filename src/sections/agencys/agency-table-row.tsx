@@ -80,7 +80,7 @@ export function AgencyTableRow({ row, selected, users, onSelectRow, onEditAgency
 
         <TableCell>{row.cod}</TableCell>
         <TableCell>{row.coordinador}</TableCell>
-        <TableCell>{director ? `${director.nombres} ${director.apellidos}` : 'Sin director'}</TableCell>
+        <TableCell>{director ? `${director.firstName} ${director.lastName}` : 'Sin director'}</TableCell>
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
             <Iconify icon="eva:more-vertical-fill" />

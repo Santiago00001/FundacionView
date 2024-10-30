@@ -8,59 +8,50 @@ import { Box, Card, Button, Select, MenuItem, TextField, Typography, InputLabel,
 
 import { Iconify } from 'src/components/iconify';
 
-import type { UserProps } from '../user-table-row';
+import type { RoleProps, UserProps } from '../user-table-row';
 
 interface CreateUserViewProps {
   onClose: () => void;
   onSave: (user: UserProps) => Promise<void>;
-  agencies: AgenciaProps[];
+  role: RoleProps[];
 }
 
-export function CreateUserView({ onClose, onSave, agencies }: CreateUserViewProps) {
+export function CreateUserView({ onClose, onSave, role }: CreateUserViewProps) {
   const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState<UserProps>({
     _id: '',
     item: 0,
-    nombres: '',
-    apellidos: '',
-    cc: '',
-    cargo: '',
-    correo: '',
-    agencia: {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+    roleid: {
       _id: '',
-      item: 0,
-      cod: 0,
-      nombre: '',
-      coordinador: '',
-      director: '',
+      name: '',
+      status: '',
     },
-    rol: '',
     verificacion: false,
     status: '',
     visible: 0,
   });
 
   const handleSave = async () => {
-    const formattedNombres = formData.nombres.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
-    const formattedApellidos = formData.apellidos.toUpperCase();
-    const formattedCargo = formData.cargo.toUpperCase();
+    const formattedNombres = formData.firstName.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
+    const formattedApellidos = formData.lastName.toUpperCase();
 
     // Crear un nuevo objeto con los datos formateados
     const newUserData = {
       ...formData,
       nombres: formattedNombres,
       apellidos: formattedApellidos,
-      cargo: formattedCargo,
-      correo: `${formData.correo}@coopserp.com`, // Concatenar el dominio aquí
+      correo: `${formData.email}@coopserp.com`, // Concatenar el dominio aquí
     };
 
     if (
-      !newUserData.nombres ||
-      !newUserData.apellidos ||
-      !newUserData.cc ||
-      !newUserData.cargo ||
-      !newUserData.agencia._id ||
-      !newUserData.rol ||
+      !newUserData.firstName ||
+      !newUserData.lastName ||
+      !newUserData.phoneNumber ||
+      !newUserData.roleid._id ||
       !newUserData.status
     ) {
       enqueueSnackbar('Por favor completa todos los campos requeridos.', { variant: 'warning' })
@@ -72,18 +63,15 @@ export function CreateUserView({ onClose, onSave, agencies }: CreateUserViewProp
   };
 
   const handleAgencyChange = (event: SelectChangeEvent<string>) => {
-    const selectedAgencyId = event.target.value; // Ahora el valor es del tipo string
-    const selectedAgency = agencies.find(agency => agency._id === selectedAgencyId);
-    if (selectedAgency) {
+    const selectedroleId = event.target.value; // Ahora el valor es del tipo string
+    const selectedRole = role.find(roles => roles._id === selectedroleId);
+    if (selectedRole) {
       setFormData({
         ...formData,
-        agencia: {
-          _id: selectedAgency._id,
-          item: selectedAgency.item,
-          cod: selectedAgency.cod,
-          nombre: selectedAgency.nombre,
-          coordinador: selectedAgency.coordinador,
-          director: selectedAgency.director,
+        roleid: {
+          _id: selectedRole._id,
+          name: selectedRole.name,
+          status: selectedRole.status,
         },
       });
     }
@@ -95,61 +83,35 @@ export function CreateUserView({ onClose, onSave, agencies }: CreateUserViewProp
       <Card sx={{ p: 3 }}>
         <TextField
           label="Nombres"
-          value={formData.nombres}
-          onChange={(e) => setFormData({ ...formData, nombres: e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase()) })}
+          value={formData.firstName}
+          onChange={(e) => setFormData({ ...formData, firstName: e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase()) })}
           fullWidth
           margin="normal"
-          required
         />
         <TextField
           label="Apellidos"
-          value={formData.apellidos}
-          onChange={(e) => setFormData({ ...formData, apellidos: e.target.value.toUpperCase() })}
+          value={formData.lastName}
+          onChange={(e) => setFormData({ ...formData, lastName: e.target.value.toUpperCase() })}
           fullWidth
           margin="normal"
-          required
         />
         <TextField
           label="CC"
-          value={formData.cc}
+          value={formData.phoneNumber}
           onChange={(e) => {
             const value = e.target.value.replace(/\D/g, ""); // Elimina cualquier caracter que no sea dígito
-            setFormData({ ...formData, cc: value });
+            setFormData({ ...formData, phoneNumber: value });
           }}
           fullWidth
           margin="normal"
           required
         />
-        <FormControl fullWidth margin="normal" variant="outlined" required>
-          <InputLabel>Cargo</InputLabel>
-          <Select
-            label="Cargo"
-            value={formData.cargo}
-            onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-          >
-            {[
-              "DIRECTOR DE AGENCIA",
-              "JEFE ÁREA REPORTES",
-              "JEFE DEPARTAMENTO",
-              "DIRECTOR GENERAL",
-              "OFICIAL DE CUMPLIMIENTO",
-              "COORDINADOR DE AGENCIAS",
-            ]
-              .sort() // Ordena alfabéticamente
-              .map((cargo) => (
-                <MenuItem key={cargo} value={cargo}>
-                  {cargo}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
         <TextField
-          label="Correo"
-          value={formData.correo}
-          onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
+          label="Correo (sin @coopserp.com)"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase()) })}
           fullWidth
           margin="normal"
-          required
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">@coopserp.com</InputAdornment>
@@ -157,46 +119,24 @@ export function CreateUserView({ onClose, onSave, agencies }: CreateUserViewProp
           }}
         />
 
-        {/* Campo para seleccionar la Agencia */}
+        {/* Campo para seleccionar la Agencia 
         <FormControl fullWidth margin="normal" required>
           <InputLabel>Agencia</InputLabel>
           <Select
             label="Agencia"
-            value={formData.agencia._id}
+            value={formData.roleId._id}
             onChange={handleAgencyChange}
           >
             {agencies
               .sort((a, b) => a.cod - b.cod) // Ordena por código numéricamente
-              .map(agency => (
-                <MenuItem key={agency._id} value={agency._id}>
-                  {agency.cod} {agency.nombre}
+              .map(role => (
+                <MenuItem key={role._id} value={role._id}>
+                  {role.name}
                 </MenuItem>
               ))}
           </Select>
         </FormControl>
-
-        <FormControl fullWidth margin="normal" variant="outlined" required>
-          <InputLabel>Rol</InputLabel>
-          <Select
-            label="Rol"
-            value={formData.rol}
-            onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
-          >
-            {[
-              "Admin",
-              "Agencia",
-              "Coordinacion",
-              "Jefatura",
-              "Almacenista",
-            ]
-              .sort() // Ordena alfabéticamente
-              .map((rol) => (
-                <MenuItem key={rol} value={rol}>
-                  {rol}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
+        */}
 
         <FormControl fullWidth margin="normal" variant="outlined" required>
           <InputLabel>Estado</InputLabel>
