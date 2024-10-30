@@ -1,0 +1,5 @@
+<svg height="20" viewBox="0 0 28 20" width="28" xmlns="http://www.w3.org/2000/svg">
+  <rect width="28" height="20" fill="#FFD700"/> <!-- Amarillo -->
+  <rect width="28" height="10" y="10" fill="#0033A0"/> <!-- Azul -->
+  <rect width="28" height="10" y="15" fill="#CE1126"/> <!-- Rojo -->
+</svg>
