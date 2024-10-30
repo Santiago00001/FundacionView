@@ -237,7 +237,7 @@ export function UserView() {
     <DashboardContent>
       <Box display="flex" alignItems="center" mb={5}>
         <Typography variant="h4" flexGrow={1}>
-          Usuarios
+          Fundaciones
         </Typography>
         <Button
           variant="contained"
@@ -279,7 +279,7 @@ export function UserView() {
                 onSelectAllRows={() => { }}
                 headLabel={[
                   { id: 'item', label: 'Id', align: 'center' },
-                  { id: 'nombres', label: 'Nombres' },
+                  { id: 'nombres', label: 'Fundacion' },
                   { id: 'apellidos', label: 'Apellidos' },
                   { id: 'cc', label: 'CC' },
                   { id: 'cargo', label: 'Cargo' },
