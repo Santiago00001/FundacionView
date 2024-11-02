@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import { Tooltip } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
@@ -12,45 +13,32 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { Iconify } from 'src/components/iconify';
 
-export type ProviderProps = {
+export type FoundationProps = {
   _id: string;
-  item: number,
   nit: string;
   razon_social: string;
-  direccion: string;
-  departamento: string;
-  ciudad: string;
-  tel: string;
-  cel: string;
-  correo: string;
-  contacto: string;
-  act_eco: string;
-  cod_ciiu: number;
-  banco: string;
-  cod_bank: number;
-  tipo_cuenta: string;
-  fecha_inag: Date;
-  fecha_reno: Date;
-  cod_ins: string;
-  cod_ins_fecha: Date;
-  ver_ins: boolean;
-  cod_dat: string;
-  cod_dat_fecha: Date;
-  ver_dat: boolean;
-  visible: number;
+  address: string;
+  departament: string;
+  city: string;
+  commune: string;
+  email: string;
+  date_create: Date;
+  vision?: string;
+  adminId: string;
+  statusDelete?: boolean;
 };
+
 
 export type ProviderTableRowProps = {
-  row: ProviderProps; // Datos del producto
+  row: FoundationProps; // Datos del producto
   selected: boolean; // Estado de selección
   onSelectRow: () => void; // Función para seleccionar la fila
-  onEditProduct: (provider: ProviderProps) => void; // Función para editar el producto
-  onEditDat: (provider: ProviderProps) => void; // Función para editar el producto
-  onEditIns: (provider: ProviderProps) => void; // Función para editar el producto
+  onEditProduct: (provider: FoundationProps) => void; // Función para editar el producto
   onDeleteProduct: (id: string) => Promise<void>; // Función para eliminar el producto
+  index: number;
 };
 
-export function ProviderTableRow({ row, selected, onSelectRow, onEditProduct, onDeleteProduct, onEditDat, onEditIns }: ProviderTableRowProps) {
+export function ProviderTableRow({ row, index, selected, onSelectRow, onEditProduct, onDeleteProduct }: ProviderTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -65,17 +53,6 @@ export function ProviderTableRow({ row, selected, onSelectRow, onEditProduct, on
     onEditProduct(row);
     handleClosePopover();
   };
-
-  const handleEditIns = () => {
-    onEditIns(row);
-    handleClosePopover();
-  };
-
-  const handleEditDat = () => {
-    onEditDat(row);
-    handleClosePopover();
-  };
-
 
   const handleDelete = () => {
     onDeleteProduct(row._id);
@@ -102,7 +79,7 @@ export function ProviderTableRow({ row, selected, onSelectRow, onEditProduct, on
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>
 
-        <TableCell align="center">{row.item}</TableCell> {/* Celda para el número de la fila */}
+        <TableCell align="center">{index}</TableCell> {/* Celda para el número de la fila */}
 
         <TableCell sx={{ minWidth: 130 }} >{row.nit}</TableCell>
 
@@ -113,55 +90,31 @@ export function ProviderTableRow({ row, selected, onSelectRow, onEditProduct, on
           </Box>
         </TableCell>
 
-        <TableCell sx={{ minWidth: 180 }}>{row.direccion}</TableCell>
-        <TableCell>{row.departamento}</TableCell>
-        <TableCell>{row.ciudad}</TableCell>
-        <TableCell>{row.tel}</TableCell>
-        <TableCell>{row.cel}</TableCell>
-        <TableCell>{row.correo}</TableCell>
-        <TableCell sx={{ minWidth: 130 }}>{row.contacto}</TableCell>
-
-        <TableCell sx={{ minWidth: 50 }}>{row.cod_ciiu}</TableCell>
-
-        <TableCell sx={{ minWidth: 150 }}>{row.cod_bank}</TableCell>
-
-        <TableCell sx={{ minWidth: 50 }}>{row.tipo_cuenta}</TableCell>
+        <TableCell sx={{ minWidth: 180 }}>{row.address}</TableCell>
+        <TableCell>{row.departament}</TableCell>
+        <TableCell>{row.city}</TableCell>
+        <TableCell>{row.commune}</TableCell>
+        <TableCell>{row.email}</TableCell>
 
         <TableCell sx={{ minWidth: 120 }}>
-          {formatDateToSpanish(new Date(row.fecha_inag).toUTCString())}
+          {formatDateToSpanish(new Date(row.date_create).toUTCString())}
         </TableCell>
 
-        <TableCell sx={{ minWidth: 120 }}>
-          {new Date(row.fecha_reno).getFullYear()} {/* Muestra solo el año */}
+        <TableCell sx={{ minWidth: 50, maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <Tooltip title={row.vision}>
+            <span>{row.vision}</span>
+          </Tooltip>
         </TableCell>
 
-        <TableCell sx={{ minWidth: 100 }}>{row.cod_ins}</TableCell>
+        <TableCell sx={{ minWidth: 150 }}>{row.adminId}</TableCell>
 
-        <TableCell sx={{ minWidth: 120 }}>
-          {formatDateToSpanish(new Date(row.cod_ins_fecha).toUTCString())}
-        </TableCell>
-
-        <TableCell align="center">
+        {/* <TableCell align="center">
           {row.ver_ins ? (
             <Iconify width={22} icon="solar:check-circle-bold" sx={{ color: 'success.main' }} />
           ) : (
             <Iconify width={22} icon="mdi:close-circle" sx={{ color: 'error.main' }} />
           )}
-        </TableCell>
-
-        <TableCell sx={{ minWidth: 100 }}>{row.cod_dat}</TableCell>
-
-        <TableCell sx={{ minWidth: 120 }}>
-          {formatDateToSpanish(new Date(row.cod_dat_fecha).toUTCString())}
-        </TableCell>
-
-        <TableCell align="center">
-          {row.ver_dat ? (
-            <Iconify width={22} icon="solar:check-circle-bold" sx={{ color: 'success.main' }} />
-          ) : (
-            <Iconify width={22} icon="mdi:close-circle" sx={{ color: 'error.main' }} />
-          )}
-        </TableCell>
+        </TableCell> */}
 
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
@@ -196,16 +149,6 @@ export function ProviderTableRow({ row, selected, onSelectRow, onEditProduct, on
           <MenuItem onClick={handleEdit}>
             <Iconify icon="solar:pen-bold" />
             Editar Proveedor
-          </MenuItem>
-
-          <MenuItem onClick={handleEditIns}>
-            <Iconify icon="solar:pen-bold" />
-            Actualizar Inspektor
-          </MenuItem>
-
-          <MenuItem onClick={handleEditDat}>
-            <Iconify icon="solar:pen-bold" />
-            Actualizar DataCredito
           </MenuItem>
 
           <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>

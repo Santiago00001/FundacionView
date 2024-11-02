@@ -5,50 +5,33 @@ import { Box, Card, Grid, Button, Select, MenuItem, TextField, Typography, Input
 
 import { Iconify } from 'src/components/iconify';
 
-import type { ProviderProps } from '../provider-table-row';
+import type { FoundationProps } from '../provider-table-row';
 
 interface CreateProviderViewProps {
   departamentosData: { departamento: string; ciudades: string[] }[];
-  codigosCiiu: { act_eco: string; cod_ciiu: number }[];
-  bankOptions: { cod_bank: number; banco: string }[];
   onClose: () => void;
-  onSave: (provider: ProviderProps) => Promise<void>;
+  onSave: (provider: FoundationProps) => Promise<void>;
 }
 
 export function CreateProviderView({
   departamentosData,
-  codigosCiiu,
-  bankOptions,
   onClose,
   onSave,
 }: CreateProviderViewProps) {
   const { enqueueSnackbar } = useSnackbar();
-  const [formData, setFormData] = useState<ProviderProps>({
+  const [formData, setFormData] = useState<FoundationProps>({
     _id: '',
-    item: 0,
     nit: '',
     razon_social: '',
-    direccion: '',
-    departamento: '',
-    ciudad: '',
-    tel: '',
-    cel: '',
-    correo: '',
-    contacto: '',
-    act_eco: '',
-    cod_ciiu: 0,
-    banco: '',
-    cod_bank: 0,
-    tipo_cuenta: '',
-    fecha_inag: new Date(),
-    fecha_reno: new Date(),
-    cod_ins: '',
-    cod_ins_fecha: new Date(),
-    ver_ins: false,
-    cod_dat: '',
-    cod_dat_fecha: new Date(),
-    ver_dat: false,
-    visible: 1,
+    address: '',
+    departament: '',
+    city: '',
+    commune: '',
+    email: '',
+    vision: '',
+    adminId: '',
+    date_create: new Date(),
+    statusDelete: true,
   });
 
   const [ciudadesFiltradas, setCiudadesFiltradas] = useState<string[]>([]);
@@ -67,9 +50,9 @@ export function CreateProviderView({
 
   // Filtrar ciudades basadas en el departamento seleccionado
   useEffect(() => {
-    if (formData.departamento) {
+    if (formData.departament) {
       const departamentoSeleccionado = departamentosData.find(
-        (dep) => dep.departamento === formData.departamento
+        (dep) => dep.departamento === formData.departament
       );
       if (departamentoSeleccionado) {
         setCiudadesFiltradas(departamentoSeleccionado.ciudades);
@@ -77,7 +60,7 @@ export function CreateProviderView({
         setCiudadesFiltradas([]);
       }
     }
-  }, [formData.departamento, departamentosData]);
+  }, [formData.departament, departamentosData]);
 
   const isValidNIT = (nit: string) => {
     const nitBase = nit.split('-')[0];
@@ -98,15 +81,14 @@ export function CreateProviderView({
 
     if (!formData.nit) newErrors.nit = true;
     if (!formData.razon_social) newErrors.razon_social = true;
-    if (!formData.direccion) newErrors.direccion = true;
-    if (!formData.departamento) newErrors.departamento = true;
-    if (!formData.ciudad) newErrors.ciudad = true;
-    if (!formData.tel) newErrors.tel = true;
-    if (!formData.cel) newErrors.cel = true;
-    if (!formData.correo) newErrors.correo = true;
-    if (!formData.contacto) newErrors.contacto = true;
-    if (!formData.act_eco) newErrors.act_eco = true;
-    if (!formData.fecha_inag) newErrors.fecha_inag = true;
+    if (!formData.address) newErrors.address = true;
+    if (!formData.departament) newErrors.departament = true;
+    if (!formData.city) newErrors.city = true;
+    if (!formData.commune) newErrors.commune = true;
+    if (!formData.email) newErrors.email = true;
+    if (!formData.date_create) newErrors.date_create = true;
+    if (!formData.vision) newErrors.vision = true;
+    if (!formData.adminId) newErrors.adminId = true;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;  // Retorna true si no hay errores
@@ -174,9 +156,8 @@ export function CreateProviderView({
           onChange={(e) => setFormData({ ...formData, razon_social: e.target.value.toUpperCase() })}
           fullWidth
           margin="normal"
-          required
-          error={!!errors.razon_social} // Validación
-          helperText={errors.razon_social ? 'El campo Razón Social es requerido' : ''}
+          error={!!errors.fecha_inag}
+          helperText={errors.fecha_inag ? 'El campo Razon Social es requerido' : ''}
         />
 
         <Grid container spacing={2} marginTop={1}>
@@ -215,7 +196,7 @@ export function CreateProviderView({
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    {direccionData.letra1 !== 'Sin Letra' && direccionData.letra1} {/* No mostrar 'Sin Letra' */}
+                    {direccionData.letra1 !== 'Sin Letra' && direccionData.letra1}
                   </InputAdornment>
                 ),
               }}
@@ -296,6 +277,7 @@ export function CreateProviderView({
               required
             />
           </Grid>
+
           {/* Complemento y Barrio */}
           <Grid item xs={12} sm={6}>
             <TextField
@@ -333,9 +315,9 @@ export function CreateProviderView({
         {/* Autocomplete para el Departamento */}
         <Autocomplete
           options={departamentosData.map((dep) => dep.departamento)}
-          value={formData.departamento}
+          value={formData.departament}
           onChange={(event, newValue) => {
-            setFormData({ ...formData, departamento: newValue || '', ciudad: '' }); // Limpia la ciudad al cambiar el departamento
+            setFormData({ ...formData, departament: newValue || '', city: '' }); // Limpia la ciudad al cambiar el departamento
           }}
           renderInput={(params) => (
             <TextField
@@ -344,16 +326,16 @@ export function CreateProviderView({
               margin="normal"
               required
               fullWidth
-              error={!!errors.departamento}
-              helperText={errors.departamento ? 'El campo Departamento es requerido' : ''}
+              error={!!errors.fecha_inag}
+              helperText={errors.fecha_inag ? 'El campo departamento es requerido' : ''}
             />
           )}
         />
         {/* Autocomplete para la Ciudad, filtrada por el Departamento */}
         <Autocomplete
           options={ciudadesFiltradas}
-          value={formData.ciudad}
-          onChange={(event, newValue) => setFormData({ ...formData, ciudad: newValue || '' })}
+          value={formData.city}
+          onChange={(event, newValue) => setFormData({ ...formData, city: newValue || '' })}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -361,136 +343,32 @@ export function CreateProviderView({
               margin="normal"
               required
               fullWidth
-              error={!!errors.ciudad}
-              helperText={errors.ciudad ? 'El campo Ciudad es requerido' : ''}
+              error={!!errors.fecha_inag}
+              helperText={errors.fecha_inag ? 'El campo ciudad es requerido' : ''}
             />
           )}
-          disabled={!formData.departamento} // Deshabilitar si no se ha seleccionado un departamento
-        />
-        <TextField
-          label="Teléfono"
-          value={formData.tel}
-          onChange={(e) => setFormData({ ...formData, tel: e.target.value })}
-          fullWidth
-          margin="normal"
-          required
-          error={!!errors.tel}
-          helperText={errors.tel ? 'El campo Teléfono es requerido' : ''}
-        />
-        <TextField
-          label="Celular"
-          value={formData.cel}
-          onChange={(e) => setFormData({ ...formData, cel: e.target.value })}
-          fullWidth
-          margin="normal"
-          required
-          error={!!errors.cel}
-          helperText={errors.cel ? 'El campo Celular es requerido' : ''}
+          disabled={!formData.departament} // Deshabilitar si no se ha seleccionado un departamento
         />
         <TextField
           label="Correo"
-          value={formData.correo}
-          onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           fullWidth
           margin="normal"
           required
-          error={!!errors.correo}
-          helperText={errors.correo ? 'El campo Correo es requerido' : ''}
+          error={!!errors.fecha_inag}
+          helperText={errors.fecha_inag ? 'El campo fecha de matricula es requerido' : ''}
         />
         <TextField
           label="Contacto"
-          value={formData.contacto}
-          onChange={(e) => setFormData({ ...formData, contacto: e.target.value })}
+          value={formData.vision}
+          onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
           fullWidth
           margin="normal"
           required
-          error={!!errors.contacto}
-          helperText={errors.contacto ? 'El campo Contacto es requerido' : ''}
+          error={!!errors.vision}
+          helperText={errors.vision ? 'El campo fecha de renovacion es requerido' : ''}
         />
-        
-        {/* Autocomplete para la Actividad Económica */}
-        <Autocomplete
-          options={codigosCiiu}
-          getOptionLabel={(option) => `${option.cod_ciiu} - ${option.act_eco}`}
-          filterOptions={(options, { inputValue }) =>
-            options.filter(
-              (option) =>
-                option.cod_ciiu.toString().includes(inputValue) ||
-                option.act_eco.toLowerCase().includes(inputValue.toLowerCase())
-            )
-          }
-          value={codigosCiiu.find((ciiu) => ciiu.cod_ciiu === formData.cod_ciiu) || null}
-          onChange={(event, newValue) =>
-            setFormData({
-              ...formData,
-              act_eco: newValue ? newValue.act_eco : '',
-              cod_ciiu: newValue ? newValue.cod_ciiu : 0
-            })
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Actividad Económica"
-              margin="normal"
-              required
-              fullWidth
-              error={!!errors.act_eco}
-              helperText={errors.act_eco ? 'El campo Actividad Económica es requerido' : ''}
-            />
-          )}
-        />
-
-        {/* Autocomplete para la Actividad Económica */}
-        <Autocomplete
-          options={bankOptions}
-          getOptionLabel={(option) => `${option.cod_bank} - ${option.banco}`}
-          filterOptions={(options, { inputValue }) =>
-            options.filter(
-              (option) =>
-                option.cod_bank.toString().includes(inputValue) ||
-                option.banco.toLowerCase().includes(inputValue.toLowerCase())
-            )
-          }
-          value={bankOptions.find((bank) => bank.cod_bank === formData.cod_bank) || null}
-          onChange={(event, newValue) =>
-            setFormData({
-              ...formData,
-              banco: newValue ? newValue.banco : '',
-              cod_bank: newValue ? newValue.cod_bank : 0
-            })
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Banco"
-              margin="normal"
-              required
-              fullWidth
-              error={!!errors.banco}
-              helperText={errors.banco ? 'El campo Banco es requerido' : ''}
-            />
-          )}
-        />
-
-        <FormControl fullWidth margin="normal" variant="outlined" required>
-          <InputLabel>Tipo de Cuenta</InputLabel>
-          <Select
-            label="Tipo de Cuenta"
-            value={formData.tipo_cuenta}
-            onChange={(e) => setFormData({ ...formData, tipo_cuenta: e.target.value })}
-          >
-            {[
-              "AHORROS",
-              "CORRIENTE",
-            ]
-              .sort() // Ordena alfabéticamente
-              .map((tipo_cuenta) => (
-                <MenuItem key={tipo_cuenta} value={tipo_cuenta}>
-                  {tipo_cuenta}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
 
         <TextField
           label="Fecha de Matricula"
@@ -498,27 +376,16 @@ export function CreateProviderView({
           InputLabelProps={{
             shrink: true,
           }}
-          value={formData.fecha_inag.toISOString().split('T')[0]}
-          onChange={(e) => setFormData({ ...formData, fecha_inag: new Date(e.target.value) })}
-          fullWidth
-          margin="normal"
-          required
-          error={!!errors.fecha_inag}
-          helperText={errors.fecha_inag ? 'El campo Fecha de Matricula es requerido' : ''}
-        />
-        <TextField
-          label="Fecha de Renovacion"
-          type="date"
-          InputLabelProps={{
-            shrink: true,
+          value={formData.date_create.toISOString().split('T')[0]} // Convierte la fecha a formato 'YYYY-MM-DD'
+          onChange={(e) => {
+            const selectedDate = new Date(e.target.value); // Convierte el valor de string a objeto Date
+            setFormData({ ...formData, date_create: selectedDate }); // Actualiza el estado
           }}
-          value={formData.fecha_reno.toISOString().split('T')[0]}
-          onChange={(e) => setFormData({ ...formData, fecha_reno: new Date(e.target.value) })}
           fullWidth
           margin="normal"
           required
-          error={!!errors.fecha_reno}
-          helperText={errors.fecha_reno ? 'El campo fecha de renovacion es requerido' : ''}
+          error={!!errors.date_create}
+          helperText={errors.date_create ? 'El campo Fecha de Matricula es requerido' : ''}
         />
         <Button
           variant="contained"

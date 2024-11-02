@@ -32,19 +32,17 @@ import { applyFilter, getComparator } from 'src/sections/providers/utils';
 import { TableNoData } from '../providers-no-data';
 import { ProviderTableRow } from '../provider-table-row'; // Asegúrate de que sea el componente correcto
 
-import { DATModal } from './dat-actualizate-dialog';
 import { EditProviderView } from './provider-edit-dialog';
 import { ProviderTableHead } from '../provider-table-head';
 import { ProviderTableToolbar } from '../provider-filters';
-import { INSInspectorDialog } from './ins-actualizate.dialog';
 
-import type { ProviderProps } from '../provider-table-row';
+import type { FoundationProps } from '../provider-table-row';
 
 export function ProviderView() {
   const [filterName, setFilterName] = useState<string>('');
-  const [providers, setProviders] = useState<ProviderProps[]>([]);
+  const [providers, setProviders] = useState<FoundationProps[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedProduct, setSelectedProduct] = useState<ProviderProps | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<FoundationProps | null>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -57,11 +55,6 @@ export function ProviderView() {
   const [departamentosData, setDepartamentosData] = useState<{ departamento: string; ciudades: string[]; }[]>([]);
   const [codigosCiiu, setcodigosCiiu] = useState<{ act_eco: string; cod_ciiu: number; }[]>([]);
   const [bankOptions, setbankOptions] = useState<{ cod_bank: number; banco: string; }[]>([]);
-  const [editDatMode, setEditDatMode] = useState<boolean>(false);
-  const [selectedDataCredito, setSelectedDataCredito] = useState<ProviderProps | null>(null);
-  const [editInsMode, seteditInsMode] = useState<boolean>(false);
-  const [selectedInspek, setSelectedInspek] = useState<ProviderProps | null>(null);
-  const [existingInsCodes, setExistingInsCodes] = useState<string[]>([]);
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSelectRow = (id: string) => {
@@ -71,23 +64,23 @@ export function ProviderView() {
   };
 
   // Función para comparar y obtener los campos que han cambiado
-  const getUpdatedFields = (original: ProviderProps, updated: ProviderProps) => {
-    const changes: Partial<ProviderProps> = {};
+  const getUpdatedFields = (original: FoundationProps, updated: FoundationProps) => {
+    const changes: Partial<FoundationProps> = {};
 
     Object.keys(updated).forEach(key => {
       // Compara los valores y asegúrate de que los tipos son compatibles
-      const originalValue = original[key as keyof ProviderProps];
-      const updatedValue = updated[key as keyof ProviderProps];
+      const originalValue = original[key as keyof FoundationProps];
+      const updatedValue = updated[key as keyof FoundationProps];
 
       if (originalValue !== updatedValue) {
-        changes[key as keyof ProviderProps] = updatedValue as any; // Afirmar que puede ser cualquier tipo
+        changes[key as keyof FoundationProps] = updatedValue as any; // Afirmar que puede ser cualquier tipo
       }
     });
 
     return changes;
   };
 
-  const handleSaveProduct = async (updatedProvider: ProviderProps): Promise<void> => {
+  const handleSaveProduct = async (updatedProvider: FoundationProps): Promise<void> => {
     if (updatedProvider._id) {
       try {
         const originalProvider = providers.find(p => p._id === updatedProvider._id);
@@ -97,7 +90,7 @@ export function ProviderView() {
 
           if (Object.keys(updatedFields).length > 0) {
             const response = await axios.put(`${import.meta.env.VITE_APP_API_URL}api/providers/${updatedProvider._id}`, updatedFields);
-            const updatedProduct: ProviderProps = response.data;
+            const updatedProduct: FoundationProps = response.data;
 
             setProviders((prev) =>
               prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
@@ -114,7 +107,7 @@ export function ProviderView() {
       // Si es un nuevo proveedor, lo creamos
       try {
         const response = await axios.post(`${import.meta.env.VITE_APP_API_URL}api/providers`, updatedProvider);
-        const newProvider: ProviderProps = response.data;
+        const newProvider: FoundationProps = response.data;
 
         setProviders((prev) => [...prev, newProvider]);
         setEditMode(false);
@@ -127,45 +120,13 @@ export function ProviderView() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_APP_API_URL}api/providers`);
+      const response = await axios.get(`${import.meta.env.VITE_APP_API_URL}api/foundations`);
       if (response.status !== 200) {
         throw new Error('Network response was not ok');
       }
       const { data } = response;
 
-      // Obtener la fecha actual
-      const currentDate = new Date();
-
-      // Extraer códigos INS existentes
-      const insCodes = data.map((provider: ProviderProps) => provider.cod_ins).filter(Boolean);
-      setExistingInsCodes(insCodes); // Establecer los códigos INS existentes
-
-      // Verificar si el Datacrédito o el INS ha expirado para cada proveedor
-      const updatedProviders = await Promise.all(
-        data.map(async (provider: { cod_dat_fecha: string | number | Date; cod_ins_fecha: string | number | Date; ver_dat: boolean; _id: any; ver_ins: boolean; }) => {
-          const datExpirationDate = new Date(provider.cod_dat_fecha);
-          datExpirationDate.setMonth(datExpirationDate.getMonth() + 6);
-
-          const insExpirationDate = new Date(provider.cod_ins_fecha);
-          insExpirationDate.setMonth(insExpirationDate.getMonth() + 3);
-
-          // Verificar Datacrédito
-          if (currentDate > datExpirationDate && provider.ver_dat === true) {
-            provider.ver_dat = false; // Actualizar a no verificado
-            await axios.put(`${import.meta.env.VITE_APP_API_URL}api/providers/${provider._id}`, { ver_dat: false });
-          }
-
-          // Verificar INS
-          if (currentDate > insExpirationDate && provider.ver_ins === true) {
-            provider.ver_ins = false; // Actualizar a no verificado
-            await axios.put(`${import.meta.env.VITE_APP_API_URL}api/providers/${provider._id}`, { ver_ins: false });
-          }
-
-          return provider;
-        })
-      );
-
-      setProviders(updatedProviders); // Establecer los proveedores actualizados en el estado
+      setProviders(data); // Establecer los proveedores actualizados en el estado
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -219,7 +180,7 @@ export function ProviderView() {
     fetchBank();
   }, []);
 
-  const dataFiltered: ProviderProps[] = applyFilter({
+  const dataFiltered: FoundationProps[] = applyFilter({
     inputData: providers,
     comparator: getComparator(order, orderBy), // Asegúrate de usar el estado actual
     filterName,
@@ -247,7 +208,7 @@ export function ProviderView() {
     setSearchField(event.target.value); // Asegúrate de manejar correctamente el evento
   };
 
-  const handleEditProduct = (provider: ProviderProps) => {
+  const handleEditProduct = (provider: FoundationProps) => {
     setSelectedProduct(provider);
     setEditMode(true); // Abre el diálogo al editar
   };
@@ -255,55 +216,6 @@ export function ProviderView() {
   const handleCloseEditDialog = () => {
     setEditMode(false);
     setSelectedProduct(null); // Limpiar el producto seleccionado
-  };
-
-
-  const handleEditIns = (provider: ProviderProps) => {
-    setSelectedInspek(provider);
-    seteditInsMode(true);
-  };
-
-  const handleCloseInspekDialog = () => {
-    seteditInsMode(false);
-    setSelectedInspek(null);
-  };
-
-  const handleSaveInspek = async (updatedINSData: { cod_ins: string; cod_ins_fecha: Date; ver_ins: boolean }) => {
-    if (selectedInspek) {
-      const updatedProvider: ProviderProps = {
-        ...selectedInspek,
-        cod_ins: updatedINSData.cod_ins,
-        cod_ins_fecha: updatedINSData.cod_ins_fecha,
-        ver_ins: updatedINSData.ver_ins,
-      };
-
-      await handleSaveProduct(updatedProvider); // Llama a tu función de guardar
-      handleCloseInspekDialog(); // Cierra el modal
-    }
-  };
-
-  const handleEditDat = (provider: ProviderProps) => {
-    setSelectedDataCredito(provider);
-    setEditDatMode(true);
-  };
-
-  const handleCloseDataCreditoDialog = () => {
-    setEditDatMode(false);
-    setSelectedDataCredito(null);
-  };
-
-  const handleSaveDataCredito = async (updatedDATData: { cod_dat: string; cod_dat_fecha: Date; ver_dat: boolean }) => {
-    if (selectedDataCredito) {
-      const updatedProvider: ProviderProps = {
-        ...selectedDataCredito,
-        cod_dat: updatedDATData.cod_dat,
-        cod_dat_fecha: updatedDATData.cod_dat_fecha,
-        ver_dat: updatedDATData.ver_dat,
-      };
-
-      await handleSaveProduct(updatedProvider); // Llama a tu función de guardar
-      handleCloseDataCreditoDialog(); // Cierra el modal
-    }
   };
 
   const handleDeleteProduct = async (_id: string) => {
@@ -322,7 +234,7 @@ export function ProviderView() {
 
   // Cambia la forma en que llamas a handleOpenAddProductModal
   const handleOpenAddProductModalWithData = () => {
-    handleOpenAddProductModal(departamentosData, codigosCiiu, bankOptions);
+    handleOpenAddProductModal(departamentosData);
   };
 
   return (
@@ -378,27 +290,17 @@ export function ProviderView() {
                 onSort={handleRequestSort} // Pasa el manejador aquí
                 onSelectAllRows={() => { }}
                 headLabel={[
-                  { id: 'item', label: 'Id', align: 'center' }, // Nueva columna para la numeración
+                  { id: 'index', label: 'ID', align: 'center' },
                   { id: 'nit', label: 'Nit' },
                   { id: 'razon_social', label: 'Razón Social' },
-                  { id: 'direccion', label: 'Direccion' },
-                  { id: 'departamento', label: 'Departamento' },
-                  { id: 'ciudad', label: 'Ciudad' },
-                  { id: 'tel', label: 'Teléfono' },
-                  { id: 'cel', label: 'Celular' },
-                  { id: 'correo', label: 'Correo' },
-                  { id: 'contacto', label: 'Contacto' },
-                  { id: 'act_eco', label: 'Actividad Económica' },
-                  { id: 'banco', label: 'Banco' },
-                  { id: 'tipo_cuenta', label: 'Tipo de Cuenta' },
-                  { id: 'fecha_inag', label: 'Fecha Matricula' },
-                  { id: 'fecha_reno', label: 'Año Renovacion' },
-                  { id: 'cod_ins', label: 'Consulta INSPEKTOR' },
-                  { id: 'cod_ins_fecha', label: 'Fecha INSPEKTOR' },
-                  { id: 'ver_ins', label: 'Verificacion INSPEKTOR' },
-                  { id: 'cod_dat', label: 'Consulta DATACREDITO' },
-                  { id: 'cod_dat_fecha', label: 'Fecha DATACREDITO' },
-                  { id: 'ver_dat', label: 'Verificacion DATACREDITO' },
+                  { id: 'address', label: 'Direccion' },
+                  { id: 'departament', label: 'Departamento' },
+                  { id: 'city', label: 'Ciudad' },
+                  { id: 'commune', label: 'Comuna' },
+                  { id: 'email', label: 'Correo' },
+                  { id: 'date_create', label: 'Fecha Matricula' },
+                  { id: 'vision', label: 'Vision' },
+                  { id: 'adminId', label: 'Administrador' },
                   { id: '' },
                 ]}
               />
@@ -414,11 +316,10 @@ export function ProviderView() {
                       <ProviderTableRow
                         key={row._id}
                         row={row}
+                        index={index + 1}
                         selected={selectedRows.includes(row._id)} // Indica si la fila está seleccionada
                         onSelectRow={() => handleSelectRow(row._id)} // Manejo de selección de fila
                         onEditProduct={handleEditProduct}
-                        onEditIns={handleEditIns}
-                        onEditDat={handleEditDat}
                         onDeleteProduct={handleDeleteProduct}
                       />
                     ))
@@ -469,42 +370,6 @@ export function ProviderView() {
           )}
         </DialogContent>
       </Dialog>
-
-      <Dialog open={editInsMode} onClose={handleCloseInspekDialog}>
-        <DialogContent>
-          {selectedInspek && (
-            <INSInspectorDialog
-              open={editInsMode}
-              onClose={handleCloseInspekDialog}
-              initialData={{
-                cod_ins: selectedInspek.cod_ins || '',
-                cod_ins_fecha: selectedInspek.cod_ins_fecha || new Date(),
-                ver_ins: selectedInspek.ver_ins || false,
-              }}
-              onSave={handleSaveInspek}
-              existingCodes={existingInsCodes}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={editDatMode} onClose={handleCloseDataCreditoDialog}>
-        <DialogContent>
-          {selectedDataCredito && (
-            <DATModal
-              open={editDatMode}
-              onClose={handleCloseDataCreditoDialog}
-              initialData={{
-                cod_dat: selectedDataCredito.cod_dat || '',
-                cod_dat_fecha: selectedDataCredito.cod_dat_fecha || new Date(),
-                ver_dat: selectedDataCredito.ver_dat || false,
-              }}
-              onSave={handleSaveDataCredito}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
     </DashboardContent>
   );
 }

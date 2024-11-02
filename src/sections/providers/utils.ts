@@ -1,9 +1,9 @@
-import type { ProviderProps } from "./provider-table-row";
+import type { FoundationProps } from "./provider-table-row";
 
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: ProviderProps[];
+  inputData: FoundationProps[];
   filterName: string;
   selectedIns: boolean | null;
   selectedDat: boolean | null;
@@ -56,30 +56,12 @@ export function applyFilter({
           return provider.razon_social.toLowerCase().includes(filterName.toLowerCase());
         case "Nit":
           return provider.nit.toLowerCase().includes(filterName.toLowerCase());
-        case "Item":
-          return provider.item.toString() === filterName; // Comparación exacta
-        case "Celular":
-          return provider.cel.toString().includes(filterName.toLowerCase());
-        case "Telefono":
-          return provider.tel.toString().includes(filterName.toLowerCase());
-        case "Correo":
-          return provider.correo.toString().includes(filterName.toLowerCase());
-        case "Contacto":
-          return provider.contacto.toLowerCase().includes(filterName.toLowerCase());
+        case "Email":
+          return provider.email.toString().includes(filterName.toLowerCase());
         default:
           return false; // Si no se selecciona un campo válido, no filtra nada
       }
     });
-  }
-
-  // Filtrado por verificación Inspektor (solo si no es null)
-  if (selectedIns !== null) {
-    inputData = inputData.filter((provider) => provider.ver_ins === selectedIns);
-  }
-
-  // Filtrado por verificación DataCredito (solo si no es null)
-  if (selectedDat !== null) {
-    inputData = inputData.filter((provider) => provider.ver_dat === selectedDat);
   }
 
   return inputData;
