@@ -19,7 +19,7 @@ export function SignInView() {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState(''); // Estado para el correo
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState(''); // Estado para la contraseña
   const [loading, setLoading] = useState(false); // Estado para manejar la carga
 
